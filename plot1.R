@@ -16,3 +16,39 @@
 # 4. By using this code, you agree to these terms.
 
 #--------
+# load packages
+library(data.table)
+
+# read the data
+file_path <- "household_power_consumption.txt"
+initial <- read.table(file_path, 
+                      header = TRUE, 
+                      sep = ";", 
+                      nrows = 5, 
+                      na.strings = "?")
+
+# Zeige die Spaltennamen
+names(initial)
+column_classes <- sapply(initial, class)  # Ermittelt die Datentypen der Spalten
+
+data <- fread("household_power_consumption.txt", 
+               sep = ";", 
+               na.strings = "?",
+               colClasses = column_classes)
+
+# Subset the data for the dates 2007-02-01 and 2007-02-02
+data <- data[Date %in% c("1/2/2007", "2/2/2007")]
+
+# transform to datetime
+data[, DateTime := as.POSIXct(strptime(paste(Date, Time), format="%d/%m/%Y %H:%M:%S"))]
+head(data)
+
+# plotting Global Active Power vs Frequency as histogram in color red
+with(data, hist(Global_active_power, col = "red")) # its the right plot, so I can save it to png
+
+png(filename = "plot1.png", width = 480, height = 480, units = "px")
+with(data, hist(Global_active_power, col = "red")) # its the right plot, so I can save it to png
+dev.off()
+
+
+
